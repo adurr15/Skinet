@@ -1,66 +1,65 @@
-import { Container, CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import {
+  Container,
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 import Header from "./Header";
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-import { useStoreContext } from "../context/StoreContext";
+import "react-toastify/dist/ReactToastify.css";
 import { getCookie } from "../util/util";
 import agent from "../api/agent";
 import LoadingComponent from "./LoadingComponent";
-
-
-
-
+import { useAppDispatch } from "../store/configureStore";
+import { setBasket } from "../../features/basket/basketSlice";
 
 function App() {
-  const {setBasket} = useStoreContext();
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const buyerId = getCookie('buyerId');
+    const buyerId = getCookie("buyerId");
 
-    if(buyerId){
+    if (buyerId) {
       agent.Basket.get()
-      .then(basket => setBasket(basket))
-      .catch(error => console.log(error))
-      .finally(() => setLoading(false));
-    } else{
+        .then((basket) => dispatch(setBasket(basket)))
+        .catch((error) => console.log(error))
+        .finally(() => setLoading(false));
+    } else {
       setLoading(false);
     }
-
-  }, [setBasket])
-
+  }, [dispatch]);
 
   const [darkMode, setDarkMode] = useState(false);
-  const paletteType = darkMode? 'dark' : 'light';
+  const paletteType = darkMode ? "dark" : "light";
   const theme = createTheme({
-    palette:{
+    palette: {
       mode: paletteType,
       background: {
-        default: paletteType === 'light'? '#eaeaea' : '#121212'
-      }
-    }
-  })
+        default: paletteType === "light" ? "#eaeaea" : "#121212",
+      },
+    },
+  });
 
-function handelThemeChange(){
-  setDarkMode(!darkMode);
-}
+  function handelThemeChange() {
+    setDarkMode(!darkMode);
+  }
 
-if (loading) return <LoadingComponent message="Initilising app..."/>
+  if (loading) return <LoadingComponent message="Initilising app..." />;
 
   return (
     <ThemeProvider theme={theme}>
       <ToastContainer position="top-right" hideProgressBar theme="colored" />
       <CssBaseline />
-      <Header darkMode={darkMode}  handelThemeChange={ handelThemeChange}/>
+      <Header darkMode={darkMode} handelThemeChange={handelThemeChange} />
 
       <Container>
         <Outlet />
       </Container>
-
     </ThemeProvider>
-  )
+  );
 }
 
-export default App
+export default App;
